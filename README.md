@@ -8,5 +8,5 @@ https://mega.nz/file/6QpkyYZL#4Urr5MxfoeudPj7QHl2bntyYDm-6vyrkY243Nt5vIOY
 2. броник (только самый тяжелый) - left ctrl + f11
 3. убить гта - left ctrl + left shift + f12
 
-# запуск
+## запуск
 Запускать после запуска игры
