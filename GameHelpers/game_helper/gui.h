@@ -47,19 +47,16 @@ namespace gta::gui
 	private:
 		ATOM register_class(HINSTANCE instance)
 		{
-			WNDCLASSEXW wcex;
+			WNDCLASSEXW wcex{};
 
 			wcex.cbSize = sizeof(WNDCLASSEX);
 
 			wcex.style = CS_HREDRAW | CS_VREDRAW;
 			wcex.lpfnWndProc = window_procedure;
-			wcex.cbClsExtra = 0;
-			wcex.cbWndExtra = 0;
 			wcex.hInstance = instance;
 			wcex.hIcon = LoadIcon(instance, MAKEINTRESOURCE(IDI_KILLGTA));
 			wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
-			wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-			wcex.lpszMenuName = MAKEINTRESOURCEW(IDC_KILLGTA);
+			wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 2);
 			wcex.lpszClassName = _class_name.c_str();
 			wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 
@@ -68,7 +65,7 @@ namespace gta::gui
 
 		BOOL init_instance(HINSTANCE instance, int show)
 		{
-			HWND window = CreateWindowW(_class_name.c_str(), L"ъ ме ьет", WS_OVERLAPPEDWINDOW,
+			HWND window = CreateWindowW(_class_name.c_str(), L"GTA Helper", WS_OVERLAPPEDWINDOW,
 				CW_USEDEFAULT, 0, 350, 160, nullptr, nullptr, instance, nullptr);
 
 			if (!window)
@@ -86,32 +83,6 @@ namespace gta::gui
 		{
 			switch (message)
 			{
-			case WM_COMMAND:
-			{
-				int wmId = LOWORD(w_param);
-				switch (wmId)
-				{
-				case IDM_IAMCHIEF:
-					SetWindowText(window, L"ъ ьет, ясвйю!!!");
-					break;
-				case IDM_IAMNOTCHIEF:
-					SetWindowText(window, L"ъ ме ьет");
-					break;
-				case IDM_EXIT:
-					DestroyWindow(window);
-					break;
-				default:
-					return DefWindowProc(window, message, w_param, l_param);
-				}
-			}
-			break;
-			case WM_PAINT:
-			{
-				PAINTSTRUCT ps;
-				HDC hdc = BeginPaint(window, &ps);
-				EndPaint(window, &ps);
-			}
-			break;
 			case WM_DESTROY:
 				PostQuitMessage(0);
 				break;

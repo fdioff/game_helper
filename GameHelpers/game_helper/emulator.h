@@ -358,7 +358,7 @@ namespace gta::emulation
 		{
 			INPUT input{};
 			input.type = INPUT_KEYBOARD;
-			input.ki.wVk = to_virtual_key(vk);
+			input.ki.wVk = static_cast<WORD>(to_virtual_key(vk));
 
 			input.ki.wScan = static_cast<WORD>(MapVirtualKey(static_cast<UINT>(input.ki.wVk), MAPVK_VK_TO_VSC));
 			input.ki.dwFlags = KEYEVENTF_SCANCODE;
@@ -410,6 +410,7 @@ namespace gta::emulation
 	public:
 		processor()
 			: _ctrl_pressed(false)
+			, _shift_pressed(false)
 			, _capturer()
 		{
 
@@ -425,9 +426,13 @@ namespace gta::emulation
 				{
 					opaque->_ctrl_pressed = true;
 				}
+				else if (data->vkCode == VK_LSHIFT)
+				{
+					opaque->_shift_pressed = true;
+				}
 				else if (data->vkCode == VK_F12)
 				{
-					if (opaque->_ctrl_pressed)
+					if (opaque->_ctrl_pressed && opaque->_shift_pressed)
 						opaque->find_and_kill();
 				}
 				else if (data->vkCode == VK_F11)
@@ -447,10 +452,15 @@ namespace gta::emulation
 				{
 					opaque->_ctrl_pressed = false;
 				}
+				else if (data->vkCode == VK_LSHIFT)
+				{
+					opaque->_shift_pressed = false;
+				}
 			}
 		}
 	private:
 		bool _ctrl_pressed;
+		bool _shift_pressed;
 		capture::processor _capturer;
 	};
 }

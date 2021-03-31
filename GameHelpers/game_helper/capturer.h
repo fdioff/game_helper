@@ -48,7 +48,7 @@ namespace gta::capture
 				_screen_dc = 0;
 			}
 		}
-		size_t check()
+		int check()
 		{
 			capture();
 
@@ -196,12 +196,14 @@ namespace gta::capture
 			auto cys = GetSystemMetrics(SM_CYSCREEN);
 			if (FALSE == StretchBlt(_window_dc, 0, 0, _width, _height, _screen_dc, 0, 0, cxs, cys, SRCCOPY))
 			{
+				logger::instance().log("capturer::reinit: StretchBlt failed");
 				return false;
 			}
 
 			_screen_bitmap = CreateCompatibleBitmap(_window_dc, _width, _height);
 			if (!_screen_bitmap)
 			{
+				logger::instance().log("capturer::reinit: CreateCompatibleBitmap failed");
 				return false;
 			}
 
@@ -219,6 +221,7 @@ namespace gta::capture
 			SelectObject(_memory_dc, _screen_bitmap);
 			if (!BitBlt(_memory_dc, 0, 0, _width, _height, _window_dc, 0, 0, SRCCOPY))
 			{
+				logger::instance().log("capturer::capture: BitBlt failed");
 				_need_reinit = true;
 				return;
 			}
@@ -226,6 +229,7 @@ namespace gta::capture
 			BITMAP bitmap{};
 			if (!GetObjectW(_screen_bitmap, sizeof(bitmap), &bitmap))
 			{
+				logger::instance().log("capturer::capture: GetObjectW failed");
 				_need_reinit = true;
 				return;
 			}
@@ -244,8 +248,9 @@ namespace gta::capture
 			bi.biClrImportant = 0;
 
 			if (const auto lines = GetDIBits(_window_dc, _screen_bitmap, 0, (UINT)bitmap.bmHeight, _buffer.get(), (BITMAPINFO*)&bi, DIB_RGB_COLORS);
-				static_cast<uint32_t>(lines) != _height)
+				lines != _height)
 			{
+				logger::instance().log("capturer::capture: GetDIBits failed");
 				_need_reinit = true;
 				return;
 			}

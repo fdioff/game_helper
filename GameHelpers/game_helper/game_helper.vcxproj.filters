@@ -18,13 +18,7 @@
     <ClInclude Include="framework.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="targetver.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
     <ClInclude Include="Resource.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="Kill_GTA.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="gui.h">
@@ -41,12 +35,12 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="GTA.cpp">
+    <ClCompile Include="game_helper.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="Kill_GTA.rc">
+    <ResourceCompile Include="game_helper.rc">
       <Filter>Файлы ресурсов</Filter>
     </ResourceCompile>
   </ItemGroup>
@@ -54,7 +48,7 @@
     <Image Include="small.ico">
       <Filter>Файлы ресурсов</Filter>
     </Image>
-    <Image Include="Kill_GTA.ico">
+    <Image Include="big.ico">
       <Filter>Файлы ресурсов</Filter>
     </Image>
   </ItemGroup>

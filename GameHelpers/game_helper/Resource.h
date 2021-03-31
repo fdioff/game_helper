@@ -1,12 +1,7 @@
-﻿//{{NO_DEPENDENCIES}}
-// Включаемый файл, созданный в Microsoft Visual C++.
-// Используется Kill_GTA.rc
-
+﻿
 #define IDS_APP_TITLE			103
 
 #define IDR_MAINFRAME			128
-#define IDD_KILLGTA_DIALOG	    102
-#define IDD_ABOUTBOX			103
 #define IDM_IAMCHIEF			104
 #define IDM_IAMNOTCHIEF			105
 #define IDM_EXIT				106
