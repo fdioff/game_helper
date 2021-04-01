@@ -3,6 +3,9 @@
 ## ссылка на скачивание бинарника 
 https://mega.nz/file/SR5yhCrJ#XVz2picP7f6yJpEfTQL49AnOuNB0wAQswKtcUttkWJM
 
+## запуск
+Запускать после запуска игры
+
 ## использование
 1. хавчик (1 штука, верхняя в списке) - left ctrl + f10
 2. броник (только самый тяжелый) - left ctrl + f11
