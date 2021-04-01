@@ -1,7 +1,7 @@
 # game_helper
 
 ## ссылка на скачивание бинарника 
-https://mega.nz/file/SR5yhCrJ#XVz2picP7f6yJpEfTQL49AnOuNB0wAQswKtcUttkWJM
+https://mega.nz/file/HIo0UCoS#rGvY-_ANzbxCY_-t_JoiFWHxvelwEpS0Nz6KQs1ty1c
 
 ## запуск
 Запускать после запуска игры
@@ -14,3 +14,6 @@ https://mega.nz/file/SR5yhCrJ#XVz2picP7f6yJpEfTQL49AnOuNB0wAQswKtcUttkWJM
 ### version 1.1
 1. Запускать можно в любое время, не только после запуска игры
 2. Настраиваемая задержка после 1го нажатия M через конфиг `config.ini`
+
+### version 1.2
+1. уменьшено потребление ресурсов

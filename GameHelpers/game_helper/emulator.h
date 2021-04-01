@@ -175,9 +175,7 @@ namespace gta::emulation
 	public:
 		static void on_keyboard_event(uint32_t msg, KBDLLHOOKSTRUCT* data)
 		{
-			//logger::instance().log("on_keyboard_event");
-
-			processor::instance()._last = std::chrono::steady_clock::now();
+			processor::instance()._last_press = std::chrono::steady_clock::now();
 
 			if (!msg || !data)
 				return;
@@ -221,10 +219,13 @@ namespace gta::emulation
 			}
 		}
 
-		bool no_data_too_long() const
+		bool no_data_too_long()
 		{
 			auto now = std::chrono::steady_clock::now();
-			return (now - _last) > std::chrono::seconds(30);
+			if ((now - _last_check) < 1s)
+				return false;
+			_last_check = now;
+			return (now - _last_press) > std::chrono::seconds(30);
 		}
 	private:
 		int32_t to_virtual_key(const e_keyboard_key_id vk)
@@ -436,6 +437,7 @@ namespace gta::emulation
 	private:
 		bool _ctrl_pressed;
 		bool _shift_pressed;
-		std::chrono::time_point<std::chrono::steady_clock> _last{};
+		std::chrono::time_point<std::chrono::steady_clock> _last_press{};
+		std::chrono::time_point<std::chrono::steady_clock> _last_check{};
 	};
 }

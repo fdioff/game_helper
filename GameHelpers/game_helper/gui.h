@@ -34,40 +34,16 @@ namespace gta::gui
 			HHOOK hook_keyboard{};
 			while (GetMessage(&msg, nullptr, 0, 0))
 			{
-				if (processes::processor::instance().is_updated())
-				{
-					if (hook_keyboard)
-					{
-						//logger::instance().log("UnhookWindowsHookEx");
-						UnhookWindowsHookEx(hook_keyboard);
-						hook_keyboard = nullptr;
-					}
-
-					//logger::instance().log("SetWindowsHookExA");
-					hook_keyboard = SetWindowsHookExA(WH_KEYBOARD_LL, keyboard_ll_hook, 0, 0);
-					//logger::instance().log((size_t)hook_keyboard);
-				}
-
-				if (hook_keyboard && processes::processor::instance().is_outdated())
-				{
-					//logger::instance().log("UnhookWindowsHookEx");
-					UnhookWindowsHookEx(hook_keyboard);
-					hook_keyboard = nullptr;
-				}
-
 				if (emulation::processor::instance().no_data_too_long())
 				{
 					if (hook_keyboard)
 					{
-						//logger::instance().log("UnhookWindowsHookEx");
 						UnhookWindowsHookEx(hook_keyboard);
 						hook_keyboard = nullptr;
 					}
 					if (processes::processor::instance().is_presented())
 					{
-						//logger::instance().log("SetWindowsHookExA");
 						hook_keyboard = SetWindowsHookExA(WH_KEYBOARD_LL, keyboard_ll_hook, 0, 0);
-						//logger::instance().log((size_t)hook_keyboard);
 					}
 				}
 
