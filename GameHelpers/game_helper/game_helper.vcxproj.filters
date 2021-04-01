@@ -33,6 +33,12 @@
     <ClInclude Include="logger.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
+    <ClInclude Include="process_helper.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="configuration.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="game_helper.cpp">

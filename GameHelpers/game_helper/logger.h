@@ -5,7 +5,7 @@
 #include <chrono>
 
 #ifndef _log_ 
-#define _log_ logger::instance().log((std::string(__FUNCTION__) + std::to_string(__LINE__)).c_str());
+#define _log_ //logger::instance().log((std::string(__FUNCTION__) + std::to_string(__LINE__)).c_str());
 #endif
 
 namespace gta
@@ -27,6 +27,12 @@ namespace gta
 
 		template<typename t>
 		void log(t data)
+		{
+			std::unique_lock l(_mtx);
+			_file << data << std::endl;
+		}
+
+		void log(size_t data)
 		{
 			std::unique_lock l(_mtx);
 			_file << data << std::endl;

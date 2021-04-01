@@ -89,10 +89,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="capturer.h" />
+    <ClInclude Include="configuration.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="gui.h" />
     <ClInclude Include="emulator.h" />
     <ClInclude Include="logger.h" />
+    <ClInclude Include="process_helper.h" />
     <ClInclude Include="Resource.h" />
   </ItemGroup>
   <ItemGroup>

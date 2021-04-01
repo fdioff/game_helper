@@ -8,11 +8,25 @@
 
 #include "framework.h"
 #include "capturer.h"
+#include "process_helper.h"
+#include "configuration.h"
 
 namespace gta::emulation
 {
 	class processor
 	{
+		processor()
+			: _ctrl_pressed(false)
+			, _shift_pressed(false)
+		{
+
+		}
+	public:
+		static processor& instance()
+		{
+			static processor instance;
+			return instance;
+		}
 		enum class e_keyboard_key_id : uint32_t
 		{
 			undefined = 0,
@@ -158,51 +172,61 @@ namespace gta::emulation
 			quote, // `'`
 			semicolon, // ';'
 		};
-		
-		void kill_process_by_id(uint32_t process_id)
+	public:
+		static void on_keyboard_event(uint32_t msg, KBDLLHOOKSTRUCT* data)
 		{
-			char process_name[256]{};
+			//logger::instance().log("on_keyboard_event");
 
-			HANDLE process_handle = OpenProcess(
-				PROCESS_QUERY_INFORMATION | PROCESS_VM_READ | PROCESS_TERMINATE,
-				FALSE, process_id);
+			processor::instance()._last = std::chrono::steady_clock::now();
 
-			if (process_handle)
-			{
-				HMODULE module{};
-				DWORD temp{};
-
-				if (EnumProcessModules(process_handle, &module, sizeof(module), &temp))
-				{
-					GetModuleBaseNameA(process_handle, module, process_name,
-						sizeof(process_name) / sizeof(char));
-				}
-
-				if (std::string("GTA5.exe") == process_name)
-				{
-					TerminateProcess(process_handle, 0);
-				}
-				CloseHandle(process_handle);
-			}
-		}
-
-		void find_and_kill()
-		{
-			DWORD process_ids[1024]{}, size{};
-
-			if (!EnumProcesses(process_ids, sizeof(process_ids), &size))
+			if (!msg || !data)
 				return;
 
-			auto amount = size / sizeof(DWORD);
-			for (int i = 0; i < amount; i++)
+			if (msg == WM_KEYDOWN)
 			{
-				if (process_ids[i] != 0)
+				if (data->vkCode == VK_LCONTROL)
 				{
-					kill_process_by_id(process_ids[i]);
+					processor::instance()._ctrl_pressed = true;
+				}
+				else if (data->vkCode == VK_LSHIFT)
+				{
+					processor::instance()._shift_pressed = true;
+				}
+				else if (data->vkCode == VK_F12)
+				{
+					if (processor::instance()._ctrl_pressed && processor::instance()._shift_pressed)
+						processes::processor::instance().find_and_kill();
+				}
+				else if (data->vkCode == VK_F11)
+				{
+					if (processor::instance()._ctrl_pressed)
+						processor::instance().generate_armor_use();
+				}
+				else if (data->vkCode == VK_F10)
+				{
+					if (processor::instance()._ctrl_pressed)
+						processor::instance().generate_snack_use();
+				}
+			}
+			else if (msg == WM_KEYUP)
+			{
+				if (data->vkCode == VK_LCONTROL)
+				{
+					processor::instance()._ctrl_pressed = false;
+				}
+				else if (data->vkCode == VK_LSHIFT)
+				{
+					processor::instance()._shift_pressed = false;
 				}
 			}
 		}
 
+		bool no_data_too_long() const
+		{
+			auto now = std::chrono::steady_clock::now();
+			return (now - _last) > std::chrono::seconds(30);
+		}
+	private:
 		int32_t to_virtual_key(const e_keyboard_key_id vk)
 		{
 			using id = e_keyboard_key_id;
@@ -386,9 +410,10 @@ namespace gta::emulation
 
 		void generate_armor_use()
 		{
+			//logger::instance().log("generate_armor_use");
 			emulate_press(e_keyboard_key_id::_m);
-			Sleep(200);
-			emulate_press(e_keyboard_key_id::arrow_down, _capturer.check());
+			std::this_thread::sleep_for(std::chrono::milliseconds(configuration::processor::instance().delay_ms()));
+			emulate_press(e_keyboard_key_id::arrow_down, capture::processor::instance().check());
 			emulate_press(e_keyboard_key_id::enter);
 			emulate_press(e_keyboard_key_id::arrow_down, 1);
 			emulate_press(e_keyboard_key_id::enter);
@@ -399,68 +424,18 @@ namespace gta::emulation
 
 		void generate_snack_use()
 		{
+			//logger::instance().log("generate_snack_use");
 			emulate_press(e_keyboard_key_id::_m);
-			Sleep(200);
-			emulate_press(e_keyboard_key_id::arrow_down, _capturer.check());
+			std::this_thread::sleep_for(std::chrono::milliseconds(configuration::processor::instance().delay_ms()));
+			emulate_press(e_keyboard_key_id::arrow_down, capture::processor::instance().check());
 			emulate_press(e_keyboard_key_id::enter);
 			emulate_press(e_keyboard_key_id::arrow_down, 2);
 			emulate_press(e_keyboard_key_id::enter, 2);
 			emulate_press(e_keyboard_key_id::_m);
 		}
-	public:
-		processor()
-			: _ctrl_pressed(false)
-			, _shift_pressed(false)
-			, _capturer()
-		{
-
-		}
-		static void on_keyboard_event(processor* opaque, uint32_t msg, KBDLLHOOKSTRUCT* data)
-		{
-			if (!opaque || !msg || !data)
-				return;
-
-			if (msg == WM_KEYDOWN)
-			{
-				if (data->vkCode == VK_LCONTROL)
-				{
-					opaque->_ctrl_pressed = true;
-				}
-				else if (data->vkCode == VK_LSHIFT)
-				{
-					opaque->_shift_pressed = true;
-				}
-				else if (data->vkCode == VK_F12)
-				{
-					if (opaque->_ctrl_pressed && opaque->_shift_pressed)
-						opaque->find_and_kill();
-				}
-				else if (data->vkCode == VK_F11)
-				{
-					if (opaque->_ctrl_pressed)
-						opaque->generate_armor_use();
-				}
-				else if (data->vkCode == VK_F10)
-				{
-					if (opaque->_ctrl_pressed)
-						opaque->generate_snack_use();
-				}
-			}
-			else if (msg == WM_KEYUP)
-			{
-				if (data->vkCode == VK_LCONTROL)
-				{
-					opaque->_ctrl_pressed = false;
-				}
-				else if (data->vkCode == VK_LSHIFT)
-				{
-					opaque->_shift_pressed = false;
-				}
-			}
-		}
 	private:
 		bool _ctrl_pressed;
 		bool _shift_pressed;
-		capture::processor _capturer;
+		std::chrono::time_point<std::chrono::steady_clock> _last{};
 	};
 }
