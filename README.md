@@ -10,7 +10,6 @@ https://mega.nz/file/HIo0UCoS#rGvY-_ANzbxCY_-t_JoiFWHxvelwEpS0Nz6KQs1ty1c
 
 ### version 1.1
 1. Запускать можно в любое время, не только после запуска игры
-<<<<<<< HEAD
 2. Настраиваемая задержка в миллисекундах после 1го нажатия M через конфиг `config.ini`. По дефолту 1000
 
 ### version 1.2
