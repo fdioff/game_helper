@@ -4,8 +4,8 @@
 https://mega.nz/file/iYwyFCpY#P3g_1iA9siXRRGFElZKqCqZIyiRDnw9UDj0lW5W9EeQ
 
 ## использование
-1. хавчик (1 штука, верхняя в списке) - left ctrl + f10
-2. броник (только самый тяжелый) - left ctrl + f11
+1. хавчик (1 штука, верхняя в списке) - left shift + f10
+2. броник (только самый тяжелый) - left shift + f11
 3. убить гта - left ctrl + left shift + f12
 
 ### version 1.1
