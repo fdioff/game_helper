@@ -17,3 +17,4 @@ https://mega.nz/file/iYwyFCpY#P3g_1iA9siXRRGFElZKqCqZIyiRDnw9UDj0lW5W9EeQ
 
 ### version 1.5
 1. уменьшена задержка
+2. использование shift вместо ctrl
