@@ -1,7 +1,7 @@
 # game_helper
 
 ## ссылка на скачивание бинарника 
-https://mega.nz/file/HIo0UCoS#rGvY-_ANzbxCY_-t_JoiFWHxvelwEpS0Nz6KQs1ty1c
+https://mega.nz/file/iYwyFCpY#P3g_1iA9siXRRGFElZKqCqZIyiRDnw9UDj0lW5W9EeQ
 
 ## использование
 1. хавчик (1 штука, верхняя в списке) - left ctrl + f10
@@ -14,3 +14,6 @@ https://mega.nz/file/HIo0UCoS#rGvY-_ANzbxCY_-t_JoiFWHxvelwEpS0Nz6KQs1ty1c
 
 ### version 1.2
 1. уменьшено потребление ресурсов
+
+### version 1.5
+1. уменьшена задержка
