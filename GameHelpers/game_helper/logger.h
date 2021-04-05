@@ -38,6 +38,12 @@ namespace gta
 			_file << data << std::endl;
 		}
 
+		void log(int data)
+		{
+			std::unique_lock l(_mtx);
+			_file << data << std::endl;
+		}
+
 		template<typename t>
 		void log(const t& data)
 		{

@@ -7,6 +7,7 @@
 #include "framework.h"
 #include "emulator.h"
 #include "process_helper.h"
+#include "time_measure.h"
 #include "Resource.h"
 
 namespace gta::gui
@@ -120,8 +121,10 @@ namespace gta::gui
 
 		static LRESULT keyboard_ll_hook(int code, WPARAM w_param, LPARAM l_param)
 		{
-			//logger::instance().log("keyboard_ll_hook");
-			emulation::processor::instance().on_keyboard_event(static_cast<uint32_t>(w_param), reinterpret_cast<KBDLLHOOKSTRUCT*>(l_param));
+			time::log_timespend_on_death timer0("keyboard_ll_hook all");
+			emulation::processor::instance().on_keyboard_event(
+				&emulation::processor::instance(), static_cast<uint32_t>(w_param), reinterpret_cast<KBDLLHOOKSTRUCT*>(l_param));
+			time::log_timespend_on_death timer1("keyboard_ll_hook only CallNextHookEx");
 			return CallNextHookEx(0, code, w_param, l_param);
 		}
 	private:
