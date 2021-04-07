@@ -17,6 +17,7 @@
 #include "process_helper.h"
 #include "configuration.h"
 #include "time_measure.h"
+#include "keys.h"
 
 namespace gta::emulation
 {
@@ -24,154 +25,10 @@ namespace gta::emulation
 	{
 		struct kb_event
 		{
-			uint32_t msg{};
-			uint32_t vk{};
+			input::e_keyboard_key_id key{};
+			bool press{};
 		};
-		enum class e_keyboard_key_id : uint32_t
-		{
-			undefined = 0,
-			_0,
-			_1,
-			_2,
-			_3,
-			_4,
-			_5,
-			_6,
-			_7,
-			_8,
-			_9,
-			_a,
-			_b,
-			_c,
-			_d,
-			_e,
-			_f,
-			_g,
-			_h,
-			_i,
-			_j,
-			_k,
-			_l,
-			_m,
-			_n,
-			_o,
-			_p,
-			_q,
-			_r,
-			_s,
-			_t,
-			_u,
-			_v,
-			_w,
-			_x,
-			_y,
-			_z,
-			numpud_0,
-			numpud_1,
-			numpud_2,
-			numpud_3,
-			numpud_4,
-			numpud_5,
-			numpud_6,
-			numpud_7,
-			numpud_8,
-			numpud_9,
-			f1,
-			f2,
-			f3,
-			f4,
-			f5,
-			f6,
-			f7,
-			f8,
-			f9,
-			f10,
-			f11,
-			f12,
-			f13,
-			f14,
-			f15,
-			f16,
-			f17,
-			f18,
-			f19,
-			f20,
-			f21,
-			f22,
-			f23,
-			f24,
-			backspace,
-			tab,
-			clear,
-			enter,
-			shift,
-			shift_left,
-			shift_right,
-			control,
-			control_left,
-			control_right,
-			menu,
-			menu_left,
-			menu_right,
-			pause_break,
-			caps_lock,
-			escape,
-			spacebar,
-			end,
-			home,
-			arrow_left,
-			arrow_right,
-			arrow_up,
-			arrow_down,
-			select,
-			print,
-			insert,
-			del, // delete
-			win_left,
-			win_right,
-			apps,
-			sleep,
-			multiply, // num *
-			add, // num +
-			separator,
-			substract, // num -
-			decimal, // num .
-			devide, // num /
-			num_lock,
-			scroll_lock,
-			browser_back,
-			browser_forward,
-			browser_refresh,
-			browser_stop,
-			browser_search,
-			browser_favorites,
-			browser_home,
-			volume_mute,
-			volume_up,
-			volume_down,
-			media_next,
-			media_previous,
-			media_stop,
-			media_play_pause,
-			launch_mail,
-			launch_media_select,
-			launch_app1,
-			launch_app2,
-			plus, // '+' or '='
-			minus, // '-'
-			period,// '.', '>'
-			comma,// ',', '<'
-			print_screen,
-			page_up,
-			page_down,
-			tilde, // '`'
-			bracket_open, // '['
-			slash, // '\'
-			slash_back, // '/'
-			bracket_close, // ']'
-			quote, // `'`
-			semicolon, // ';'
-		};
+		
 		processor()
 			: _ctrl_pressed(false)
 			, _shift_pressed(false)
@@ -192,17 +49,16 @@ namespace gta::emulation
 				_thread.join();
 		}
 	public:
-		static void on_keyboard_event(processor* ptr, uint32_t msg, KBDLLHOOKSTRUCT* pdata)
+		void on_keyboard_event(input::e_keyboard_key_id key, bool press)
 		{
-			if (!msg || !pdata)
-				return;
+			logger::instance().log(__func__, ": key=", key, ", press=", press);
 
 			time::log_timespend_on_death timer0("on_keyboard_event all");
 
-			std::unique_lock l(ptr->_mtx);
-			ptr->_queue.push({ msg, pdata->vkCode });
+			std::unique_lock l(_mtx);
+			_queue.push({ key, press });
 			l.unlock();
-			ptr->_cv.notify_one();
+			_cv.notify_one();
 		}
 
 		bool no_data_too_long()
@@ -214,9 +70,9 @@ namespace gta::emulation
 			return (now - _last_press) > std::chrono::seconds(30);
 		}
 	private:
-		int32_t to_virtual_key(const e_keyboard_key_id vk)
+		int32_t to_virtual_key(const input::e_keyboard_key_id vk)
 		{
-			using id = e_keyboard_key_id;
+			using id = input::e_keyboard_key_id;
 
 			if (vk == id::_0) return 0x30;
 			if (vk == id::_1) return 0x31;
@@ -303,7 +159,7 @@ namespace gta::emulation
 			if (vk == id::add) return VK_ADD;
 			if (vk == id::substract) return VK_SUBTRACT;
 			if (vk == id::decimal) return VK_DECIMAL;
-			if (vk == id::devide) return VK_DIVIDE;
+			if (vk == id::divide) return VK_DIVIDE;
 			if (vk == id::num_lock) return VK_NUMLOCK;
 			if (vk == id::tilde) return VK_OEM_3;
 			if (vk == id::minus) return VK_OEM_MINUS;
@@ -343,9 +199,9 @@ namespace gta::emulation
 			return 0;
 		}
 
-		bool scancode_filtered(const e_keyboard_key_id vk)
+		bool scancode_filtered(const input::e_keyboard_key_id vk)
 		{
-			using id = e_keyboard_key_id;
+			using id = input::e_keyboard_key_id;
 			switch (vk)
 			{
 			case id::arrow_down:
@@ -365,7 +221,7 @@ namespace gta::emulation
 			return false;
 		}
 
-		INPUT generate_key_press(e_keyboard_key_id vk, bool press)
+		INPUT generate_key_press(input::e_keyboard_key_id vk, bool press)
 		{
 			INPUT input{};
 			input.type = INPUT_KEYBOARD;
@@ -383,52 +239,62 @@ namespace gta::emulation
 			return input;
 		}
 
-		void emulate_press(e_keyboard_key_id vk, int times = 1)
+		void emulate_press(input::e_keyboard_key_id vk, int times = 1)
 		{
 			INPUT input{};
 			for (int idx = 0; idx < times; ++idx)
 			{
 				input = generate_key_press(vk, true);
-				SendInput(1, &input, sizeof(INPUT));
+				int res = SendInput(1, &input, sizeof(INPUT));
+				if (!res)
+					logger::instance().log("SendInput failed");
+				std::this_thread::sleep_for(std::chrono::milliseconds(configuration::processor::instance().press_delay_ms()));
 				input = generate_key_press(vk, false);
-				SendInput(1, &input, sizeof(INPUT));
+				res = SendInput(1, &input, sizeof(INPUT));
+				if (!res)
+					logger::instance().log("SendInput failed");
+				std::this_thread::sleep_for(std::chrono::milliseconds(configuration::processor::instance().press_delay_ms()));
 			}
 		}
 
 		void generate_armor_use()
 		{
+			using id = input::e_keyboard_key_id;
+
 			logger::instance().log("generate_armor_use");
-			emulate_press(e_keyboard_key_id::_m);
-			std::this_thread::sleep_for(std::chrono::milliseconds(configuration::processor::instance().delay_ms()));
+			emulate_press(id::_m);
+			std::this_thread::sleep_for(std::chrono::milliseconds(configuration::processor::instance().capture_delay_ms()));
 			auto down = capture::processor::instance().check();
 			logger::instance().log(down);
 			if (down != 0)
 			{
-				emulate_press(e_keyboard_key_id::arrow_down, down);
-				emulate_press(e_keyboard_key_id::enter);
-				emulate_press(e_keyboard_key_id::arrow_down, 1);
-				emulate_press(e_keyboard_key_id::enter);
-				emulate_press(e_keyboard_key_id::arrow_down, 4);
-				emulate_press(e_keyboard_key_id::enter);
+				emulate_press(id::arrow_down, down);
+				emulate_press(id::enter);
+				emulate_press(id::arrow_down, 1);
+				emulate_press(id::enter);
+				emulate_press(id::arrow_down, 4);
+				emulate_press(id::enter);
 			}
-			emulate_press(e_keyboard_key_id::_m);
+			emulate_press(id::_m);
 		}
 
 		void generate_snack_use()
 		{
+			using id = input::e_keyboard_key_id;
+
 			logger::instance().log("generate_snack_use");
-			emulate_press(e_keyboard_key_id::_m);
-			std::this_thread::sleep_for(std::chrono::milliseconds(configuration::processor::instance().delay_ms()));
+			emulate_press(id::_m);
+			std::this_thread::sleep_for(std::chrono::milliseconds(configuration::processor::instance().capture_delay_ms()));
 			auto down = capture::processor::instance().check();
 			logger::instance().log(down);
 			if (down != 0)
 			{
-				emulate_press(e_keyboard_key_id::arrow_down, down);
-				emulate_press(e_keyboard_key_id::enter);
-				emulate_press(e_keyboard_key_id::arrow_down, 2);
-				emulate_press(e_keyboard_key_id::enter, 2);
+				emulate_press(id::arrow_down, down);
+				emulate_press(id::enter);
+				emulate_press(id::arrow_down, 2);
+				emulate_press(id::enter, 2);
 			}
-			emulate_press(e_keyboard_key_id::_m);
+			emulate_press(id::_m);
 		}
 
 		void work_thread()
@@ -451,38 +317,40 @@ namespace gta::emulation
 			time::log_timespend_on_death timer("step");
 			processor::instance()._last_press = std::chrono::steady_clock::now();
 
-			if (evnt.msg == WM_KEYDOWN)
+			using id = input::e_keyboard_key_id;
+
+			if (evnt.press)
 			{
-				if (evnt.vk == VK_LCONTROL)
+				if (evnt.key == id::control_left)
 				{
 					processor::instance()._ctrl_pressed = true;
 				}
-				else if (evnt.vk == VK_LSHIFT)
+				else if (evnt.key == id::shift_left)
 				{
 					processor::instance()._shift_pressed = true;
 				}
-				else if (evnt.vk == VK_F12)
+				else if (evnt.key == id::f12)
 				{
 					if (processor::instance()._ctrl_pressed && processor::instance()._shift_pressed)
 						processes::processor::instance().find_and_kill();
 				}
 			}
-			else if (evnt.msg == WM_KEYUP)
+			else
 			{
-				if (evnt.vk == VK_LCONTROL)
+				if (evnt.key == id::control_left)
 				{
 					processor::instance()._ctrl_pressed = false;
 				}
-				else if (evnt.vk == VK_LSHIFT)
+				else if (evnt.key == id::shift_left)
 				{
 					processor::instance()._shift_pressed = false;
 				}
-				else if (evnt.vk == VK_F11)
+				else if (evnt.key == id::f11)
 				{
 					if (processor::instance()._shift_pressed)
 						processor::instance().generate_armor_use();
 				}
-				else if (evnt.vk == VK_F10)
+				else if (evnt.key == id::f10)
 				{
 					if (processor::instance()._shift_pressed)
 						processor::instance().generate_snack_use();

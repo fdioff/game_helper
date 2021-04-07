@@ -42,6 +42,12 @@
     <ClInclude Include="time_measure.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
+    <ClInclude Include="input.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="keys.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="game_helper.cpp">

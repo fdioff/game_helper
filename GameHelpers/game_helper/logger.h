@@ -25,43 +25,47 @@ namespace gta
 			return instance;
 		}
 
-		template<typename t>
-		void log(t data)
+		template<typename ...Args>
+		void log(const Args ...args)
 		{
-			std::unique_lock l(_mtx);
-			_file << data << std::endl;
+			std::string message;
+			parse(message, args...);
+			_file << message << std::endl;
+#ifdef _DEBUG
+			if (IsDebuggerPresent() == TRUE)
+			{
+				message.append("\n");
+				OutputDebugStringA(message.c_str());
+			}
+#endif
 		}
 
-		void log(size_t data)
+	private:
+		void parse(std::string&) {}
+
+		template<typename T>
+		void parse(std::string& out, const T& t)
 		{
-			std::unique_lock l(_mtx);
-			_file << data << std::endl;
+			if constexpr (std::is_convertible_v<T, std::string>)
+				out.append(t);
+			else if constexpr (std::is_same_v<T, bool>)
+				out.append(t ? "true" : "false");
+			else if constexpr (std::is_arithmetic_v<T>)
+				out.append(std::to_string(t));
+			else if constexpr (std::is_enum_v<T>)
+				out.append(std::to_string(static_cast<std::underlying_type_t<T>>(t)));
+			else if constexpr (std::is_pointer_v<T>)
+				out.append(std::to_string(reinterpret_cast<size_t>(t)));
+			else
+				static_assert(false);
 		}
 
-		void log(int data)
+		template<typename T, typename ...Args>
+		void parse(std::string& out, const T& t, Args... args)
 		{
-			std::unique_lock l(_mtx);
-			_file << data << std::endl;
-		}
-
-		template<typename t>
-		void log(const t& data)
-		{
-			std::unique_lock l(_mtx);
-			_file << data << std::endl;
-		}
-
-		template<typename t>
-		void log(const t* data)
-		{
-			std::unique_lock l(_mtx);
-			_file << data << std::endl;
-		}
-
-		void log(const std::string& data)
-		{
-			std::unique_lock l(_mtx);
-			_file << data << std::endl;
+			//out << t;
+			parse(out, t);
+			parse(out, args...);
 		}
 
 	private:
